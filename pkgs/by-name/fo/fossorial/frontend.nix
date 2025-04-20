@@ -15,7 +15,7 @@ buildNpmPackage {
 
   nativeBuildInputs = [ esbuild ];
   # fix the dependency on google fonts
-  patches = [ ./fix-font-dep.patch ];
+  patches = [ ./dep.patch ];
   preBuild = ''
     ls -a
   '';
