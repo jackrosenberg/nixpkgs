@@ -1,0 +1,98 @@
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.services.fossorial;
+  opt = options.services.fossorial;
+in
+{
+  options = {
+    services.fossorial = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          If enabled, starts the fossorial ecosystem ...
+          more text here
+        '';
+      };
+      baseDomainName = lib.mkOption {
+        type = lib.types.string;
+        default = "";
+        description = ''
+           Your base fully qualified domain name (without any subdomains)
+          '';
+        example = "example.com";
+      };
+      dashboardDomainName = lib.mkOption {
+        type = lib.types.string;
+        default = "";
+        description = ''
+              The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
+        '';
+        example = "pangolin.example.com";
+      };
+
+      letsEncryptEmail = lib.mkOption {
+        type = lib.types.string;
+        default = "";
+        description = ''
+              An email address for SSL certificate registration with Lets Encrypt. This should be an email you have access to.
+        '';
+      };
+      tunneling = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+              You can choose not to install Gerbil for tunneling support - in this config it will just be a normal reverse proxy. See how to use without tunneling.
+        '';
+      };
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 3001;
+        description = ''
+          Specifies the port to listen on.
+        '';
+      };
+      dataDir = lib.mkOption {
+        type = lib.types.str;
+        default = "/var/lib/fossorial";
+        example = "/srv/fossorial";
+        description = "Path to variable state data directory for fossorial.";
+      };
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    users.users.fossorial = {
+      description = "Fossorial service user";
+      group = "fossorial";
+      home = cfg.dataDir;
+      createHome = true;
+      uid = config.ids.uids.fossorial;
+    };
+    users.groups.fossorial = {
+      gid = config.ids.gids.fossorial;
+    };
+
+    systemd.services.fossorial = {
+      description = "Fossorial Service";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+
+      serviceConfig = {
+        User = "fossorial";
+        Group = "fossorial";
+        GuessMainPID = true;
+        UMask = 7;
+        # ExecStart = "${pkgs.terraria-server}/bin/TerrariaServer";
+        # ExecStop = "";
+      };
+    };
+  };
+
+}
