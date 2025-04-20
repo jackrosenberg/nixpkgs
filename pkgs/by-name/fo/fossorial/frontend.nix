@@ -34,7 +34,9 @@ buildNpmPackage {
     runHook preInstall
 
     mkdir -p $out
-    cp -r dist ssr.js favicon.png robots.txt $out/
+    cp -r dist/* $out/
+
+    cp -r node_modules/.bin/* $out/bin/
 
     runHook postInstall
   '';
