@@ -16,7 +16,7 @@ in
       enable = lib.mkEnableOption "Fossorial";
       # package = lib.mkPackageOption pkgs "fossorial" { };
       baseDomainName = lib.mkOption {
-        type = lib.types.string;
+        type = lib.types.str;
         default = "";
         description = ''
            Your base fully qualified domain name (without any subdomains)
@@ -24,7 +24,7 @@ in
         example = "example.com";
       };
       dashboardDomainName = lib.mkOption {
-        type = lib.types.string;
+        type = lib.types.str;
         default = "";
         description = ''
               The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
@@ -33,7 +33,7 @@ in
       };
 
       letsEncryptEmail = lib.mkOption {
-        type = lib.types.string;
+        type = lib.types.str;
         default = "";
         description = ''
               An email address for SSL certificate registration with Lets Encrypt. This should be an email you have access to.
