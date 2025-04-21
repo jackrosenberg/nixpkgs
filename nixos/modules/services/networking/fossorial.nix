@@ -84,13 +84,25 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
 
+      environment = {
+        NODE_OPTIONS = "enable-source-maps";
+        NODE_ENV = "development";
+        ENVIRONMENT= "prod";
+      };
+
       serviceConfig = {
         User = "fossorial";
         Group = "fossorial";
         GuessMainPID = true;
         UMask = 7;
-        # ExecStart = "${pkgs.terraria-server}/bin/TerrariaServer";
-        # ExecStop = "";
+        ExecStartPre = ''
+
+        '';
+        ExecStart = ''
+          node ${pkgs.fossorial}/dist/migrations.mjs
+          node ${pkgs.fossorial}/dist/server.mjs'
+        '';
+        ExecStop = "";
       };
     };
   };

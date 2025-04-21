@@ -1,11 +1,13 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchFromGitHub,
   callPackage,
+  nixosTests,
+  nix-update-script
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "pangolin";
   version = "1.2.0";
 
@@ -27,4 +29,15 @@ stdenv.mkDerivation (finalAttrs: {
       ;
   };
 
+  dontConfigure = true;
+  dontBuild = true;
+
+  installPhase = ''
+    runHook preInstall
+
+    mkdir $out
+    ln -s ${finalAttrs.frontend}/* $out/
+
+    runHook postInstall
+  '';
 })

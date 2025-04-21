@@ -16,9 +16,6 @@ buildNpmPackage {
   nativeBuildInputs = [ esbuild ];
   # fix the dependency on google fonts
   patches = [ ./dep.patch ];
-  preBuild = ''
-    ls -a
-  '';
   buildPhase = ''
     runHook preBuild
 
@@ -27,18 +24,28 @@ buildNpmPackage {
     node esbuild.mjs -e server/index.ts -o dist/server.mjs
     node esbuild.mjs -e server/setup/migrations.ts -o dist/migrations.mjs
 
+    ls -a
+
     runHook postBuild
   '';
 
+  # installPhase = ''
+  #   runHook preInstall
+  #
+  #   mkdir -p $out/
+  #   cp -r dist $out/
+  #   cp -r config $out/config
+  #   cp -r node_modules $out/node_modules
+  #
+  #   runHook postInstall
+  # '';
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out
-    cp -r dist/* $out/
-
-    cp -r node_modules/.bin/* $out/bin/
+    mkdir -p $out/
+    cp -r * $out/
+    mkdir $out/config/traefik
 
     runHook postInstall
   '';
-
 }
