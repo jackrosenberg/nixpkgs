@@ -1,4 +1,5 @@
 {
+  utils,
   config,
   lib,
   options,
@@ -12,14 +13,8 @@ in
 {
   options = {
     services.fossorial = {
-      enable = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          If enabled, starts the fossorial ecosystem ...
-          more text here
-        '';
-      };
+      enable = lib.mkEnableOption "Fossorial";
+      # package = lib.mkPackageOption pkgs "fossorial" { };
       baseDomainName = lib.mkOption {
         type = lib.types.string;
         default = "";
@@ -55,10 +50,7 @@ in
         type = lib.types.port;
         default = 3001;
         description = ''
-          Specifies the port to listen on.
-        '';
-      };
-      dataDir = lib.mkOption {
+          Specifies the port to listen on. ''; }; dataDir = lib.mkOption {
         type = lib.types.str;
         default = "/var/lib/fossorial";
         example = "/srv/fossorial";
@@ -71,12 +63,13 @@ in
     users.users.fossorial = {
       description = "Fossorial service user";
       group = "fossorial";
+      isNormalUser = true;
       home = cfg.dataDir;
       createHome = true;
-      uid = config.ids.uids.fossorial;
+      # uid = config.ids.uids.fossorial;
     };
     users.groups.fossorial = {
-      gid = config.ids.gids.fossorial;
+      # gid = config.ids.gids.fossorial;
     };
 
     systemd.services.fossorial = {
@@ -95,13 +88,14 @@ in
         Group = "fossorial";
         GuessMainPID = true;
         UMask = 7;
-        ExecStartPre = ''
-
-        '';
-        ExecStart = ''
-          node ${pkgs.fossorial}/dist/migrations.mjs
-          node ${pkgs.fossorial}/dist/server.mjs'
-        '';
+        ExecStartPre = utils.escapeSystemdExecArgs [
+          (lib.getExe pkgs.nodejs_22)
+          "${pkgs.fossorial}/dist/migrations.mjs"
+        ];
+        ExecStart = utils.escapeSystemdExecArgs [
+          (lib.getExe pkgs.nodejs_22)
+          "${pkgs.fossorial}/dist/server.mjs"
+        ];
         ExecStop = "";
       };
     };

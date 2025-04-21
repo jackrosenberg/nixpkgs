@@ -1123,6 +1123,7 @@
   ./services/networking/firezone/relay.nix
   ./services/networking/firezone/server.nix
   ./services/networking/flannel.nix
+  ./services/networking/fossorial.nix
   ./services/networking/freenet.nix
   ./services/networking/freeradius.nix
   ./services/networking/frp.nix
