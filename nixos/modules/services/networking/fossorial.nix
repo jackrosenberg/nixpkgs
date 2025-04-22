@@ -63,7 +63,7 @@ in
     users.users.fossorial = {
       description = "Fossorial service user";
       group = "fossorial";
-      isNormalUser = true;
+      isSystemUser = true;
       home = cfg.dataDir;
       createHome = true;
       # uid = config.ids.uids.fossorial;
@@ -87,6 +87,7 @@ in
         User = "fossorial";
         Group = "fossorial";
         GuessMainPID = true;
+        WorkingDirectory = cfg.dataDir;
         UMask = 7;
         ExecStartPre = utils.escapeSystemdExecArgs [
           (lib.getExe pkgs.nodejs_22)
