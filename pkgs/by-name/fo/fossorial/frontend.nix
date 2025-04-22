@@ -33,7 +33,6 @@ buildNpmPackage {
 
     cp package.json package-lock.json $out/
 
-
     cp -r .next/standalone/* $out/
     cp -r .next/standalone/.next $out/
 
@@ -48,6 +47,4 @@ buildNpmPackage {
 
     runHook postInstall
   '';
-    # echo "ls -la .next/standalone/:"
-    # ls -la .next/standalone/
 }
