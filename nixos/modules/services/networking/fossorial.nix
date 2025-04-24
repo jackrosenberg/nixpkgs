@@ -87,6 +87,7 @@ in
         User = "fossorial";
         Group = "fossorial";
         GuessMainPID = true;
+        BindPaths = pkgs.fossorial;
         WorkingDirectory = cfg.dataDir;
         UMask = 7;
         ExecStartPre = utils.escapeSystemdExecArgs [

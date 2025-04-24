@@ -37,7 +37,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     mkdir $out
     ln -s ${finalAttrs.frontend}/* $out/
-    ln -s ${finalAttrs.frontend}/.next $out/
+    ln -s ${finalAttrs.frontend}/.* $out/
 
     runHook postInstall
   '';

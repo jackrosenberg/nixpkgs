@@ -33,7 +33,7 @@ buildNpmPackage {
 
     cp package.json package-lock.json $out/
 
-    cp -r .next/standalone/* $out/
+    cp -r .next/standalone/ $out/
     cp -r .next/standalone/.next $out/
 
     cp -r .next/static $out/.next/static
@@ -44,7 +44,6 @@ buildNpmPackage {
     cp -r public $out/public
 
     cp -r node_modules $out/
-
     runHook postInstall
   '';
 }
