@@ -50,7 +50,9 @@ in
         type = lib.types.port;
         default = 3001;
         description = ''
-          Specifies the port to listen on. ''; }; dataDir = lib.mkOption {
+          Specifies the port to listen on. '';
+      };
+      dataDir = lib.mkOption {
         type = lib.types.str;
         default = "/var/lib/fossorial";
         example = "/srv/fossorial";
@@ -87,10 +89,11 @@ in
         User = "fossorial";
         Group = "fossorial";
         GuessMainPID = true;
-        BindPaths = pkgs.fossorial;
-        WorkingDirectory = cfg.dataDir;
-        UMask = 7;
+
+        WorkingDirectory = "${cfg.dataDir}2";
+        ReadOnlyPaths = pkgs.fossorial;
         ExecStartPre = utils.escapeSystemdExecArgs [
+          "ln -s ${pkgs.fossorial}/ ."
           (lib.getExe pkgs.nodejs_22)
           "${pkgs.fossorial}/dist/migrations.mjs"
         ];

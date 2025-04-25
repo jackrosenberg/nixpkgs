@@ -1,5 +1,4 @@
 {
-  lib,
   esbuild,
   buildNpmPackage,
 
@@ -40,6 +39,7 @@ buildNpmPackage {
     cp -r dist $out/dist
     cp -r init $out/dist/init
 
+    cp server/db/names.json $out/dist/names.json
     cp -r public $out/public
     cp -r node_modules $out/
 
