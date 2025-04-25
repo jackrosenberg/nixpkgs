@@ -14,7 +14,8 @@ in
   options = {
     services.fossorial = {
       enable = lib.mkEnableOption "Fossorial";
-      # package = lib.mkPackageOption pkgs "fossorial" { };
+      package = lib.mkPackageOption pkgs "fossorial" { };
+
       baseDomainName = lib.mkOption {
         type = lib.types.str;
         default = "";
@@ -54,7 +55,7 @@ in
       };
       dataDir = lib.mkOption {
         type = lib.types.str;
-        default = "/var/lib/fossorial";
+        default = "/var/lib/fossorial"; # TODO!!!!!!!!!!!!!!!!!!!!!!!!
         example = "/srv/fossorial";
         description = "Path to variable state data directory for fossorial.";
       };
@@ -62,18 +63,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    users.users.fossorial = {
-      description = "Fossorial service user";
-      group = "fossorial";
-      isSystemUser = true;
-      home = cfg.dataDir;
-      createHome = true;
-      # uid = config.ids.uids.fossorial;
-    };
-    users.groups.fossorial = {
-      # gid = config.ids.gids.fossorial;
-    };
-
     systemd.services.fossorial = {
       description = "Fossorial Service";
       wantedBy = [ "multi-user.target" ];
@@ -88,12 +77,16 @@ in
       serviceConfig = {
         User = "fossorial";
         Group = "fossorial";
+        DynamicUser = true;
+        PrivateTmp = "yes";
         GuessMainPID = true;
+        WorkingDirectory = cfg.dataDir;
+        StateDirectory = "fossorial";
+        RuntimeDirectory  = "fossorial";
+        RuntimeDirectoryPreserve = true;
+        CacheDirectory  = "fossorial";
 
-        WorkingDirectory = "${cfg.dataDir}2";
-        ReadOnlyPaths = pkgs.fossorial;
         ExecStartPre = utils.escapeSystemdExecArgs [
-          "ln -s ${pkgs.fossorial}/ ."
           (lib.getExe pkgs.nodejs_22)
           "${pkgs.fossorial}/dist/migrations.mjs"
         ];
@@ -101,7 +94,6 @@ in
           (lib.getExe pkgs.nodejs_22)
           "${pkgs.fossorial}/dist/server.mjs"
         ];
-        ExecStop = "";
       };
     };
   };
