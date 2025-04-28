@@ -63,6 +63,15 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    users.users.fossorial = {
+      description = "Fossorial service user";
+      group = "fossorial";
+      isSystemUser = true;
+      home = cfg.dataDir;
+      createHome = true;
+    };
+    users.groups.fossorial = {
+    };
     systemd.services.fossorial = {
       description = "Fossorial Service";
       wantedBy = [ "multi-user.target" ];
@@ -73,18 +82,11 @@ in
         NODE_ENV = "development";
         ENVIRONMENT= "prod";
       };
-
       serviceConfig = {
         User = "fossorial";
         Group = "fossorial";
-        DynamicUser = true;
-        PrivateTmp = "yes";
         GuessMainPID = true;
         WorkingDirectory = cfg.dataDir;
-        StateDirectory = "fossorial";
-        RuntimeDirectory  = "fossorial";
-        RuntimeDirectoryPreserve = true;
-        CacheDirectory  = "fossorial";
 
         ExecStartPre = utils.escapeSystemdExecArgs [
           (lib.getExe pkgs.nodejs_22)
