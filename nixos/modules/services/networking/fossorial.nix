@@ -9,10 +9,64 @@ let
   cfg = config.services.fossorial;
   cfgTxt = lib.generators.toYAML { } settings;
   cfgFile = pkgs.writeText "config.yml" cfgTxt;
-  settings =  {
+  settings = {
     app = {
-      dashboard_url = "http:alksdjflaksjdfla";
+      dashboard_url = "https://${cfg.baseDomain}";
+      log_level = "info";
+      save_logs = false;
     };
+    domains = {
+      domain1 = {
+        base_domain = cfg.baseDomain;
+        cert_resolver = "letsencrypt";
+        prefer_wildcard_cert = false;
+      };
+    };
+    server = {
+      external_port = cfg.externalPort;
+      internal_port = cfg.internalPort;
+      next_port = cfg.nextPort;
+      internal_hostname = "pangolin";
+      session_cookie_name = "p_session_token";
+      resource_access_token_param = "p_token";
+      resource_access_token_headers = {
+        id = "P-Access-Token-Id";
+        token = "P-Access-Token";
+      };
+      resource_session_request_param = "p_session_request";
+    };
+    traefik = {
+      cert_resolver = "letsencrypt";
+      http_entrypoint = "web";
+      https_entrypoint = "websecure";
+    };
+    gerbil = {
+     start_port = 51820;
+     base_endpoint = cfg.baseDomain;
+     block_size = 24;
+     site_block_size = 30;
+     subnet_group = "100.89.137.0/20";
+     use_subdomain = true;
+    };
+    rate_limits = {
+      global = {
+         window_minutes = 1;
+         max_requests = 500;
+      };
+    };
+    users = {
+      server_admin = {
+        email = "admin@example.com";
+        password = "Password123!";
+      };
+    };
+    flags = {
+      require_email_verification = false;
+      disable_signup_without_invite = true;
+      disable_user_create_org = true;
+      allow_raw_resources = true;
+      allow_base_domain_resources = true;
+      };
   };
 in
 {
@@ -21,9 +75,9 @@ in
       enable = lib.mkEnableOption "Fossorial";
       package = lib.mkPackageOption pkgs "fossorial" { };
 
-      baseDomainName = lib.mkOption {
+      baseDomain = lib.mkOption {
         type = lib.types.str;
-        default = "";
+        default = "example.com";
         description = ''
            Your base fully qualified domain name (without any subdomains)
           '';
@@ -52,15 +106,27 @@ in
               You can choose not to install Gerbil for tunneling support - in this config it will just be a normal reverse proxy. See how to use without tunneling.
         '';
       };
-      port = lib.mkOption {
+      externalPort = lib.mkOption {
+        type = lib.types.port;
+        default = 3000;
+        description = ''
+          Specifies the port to listen on for the external server '';
+      };
+      internalPort = lib.mkOption {
         type = lib.types.port;
         default = 3001;
         description = ''
-          Specifies the port to listen on. '';
+          Specifies the port to listen on for the internal server '';
+      };
+      nextPort = lib.mkOption {
+        type = lib.types.port;
+        default = 3002;
+        description = ''
+          Specifies the port to listen on for the nextjs frontend '';
       };
       dataDir = lib.mkOption {
         type = lib.types.str;
-        default = "/var/lib/fossorial"; # TODO!!!!!!!!!!!!!!!!!!!!!!!!
+        default = "/var/lib/fossorial";
         example = "/srv/fossorial";
         description = "Path to variable state data directory for fossorial.";
       };
@@ -68,7 +134,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-
     users.users.fossorial = {
       description = "Fossorial service user";
       group = "fossorial";
@@ -99,6 +164,7 @@ in
         Group = "fossorial";
         GuessMainPID = true;
         WorkingDirectory = cfg.dataDir;
+        Restart = "always";
 
         BindPaths = [
           "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
