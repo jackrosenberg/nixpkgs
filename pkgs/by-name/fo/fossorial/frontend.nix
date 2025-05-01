@@ -1,7 +1,6 @@
 {
   esbuild,
   buildNpmPackage,
-
   pname,
   version,
   src,
