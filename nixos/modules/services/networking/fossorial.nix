@@ -2,13 +2,12 @@
   utils,
   config,
   lib,
-  options,
   pkgs,
   ...
 }:
 let
   cfg = config.services.fossorial;
-  opt = options.services.fossorial;
+  cfgFile = pkgs.writeText "config.yml" lib.generators.toYAML { } cfg;
 in
 {
   options = {
@@ -63,6 +62,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+
     users.users.fossorial = {
       description = "Fossorial service user";
       group = "fossorial";
@@ -72,6 +72,7 @@ in
     };
     users.groups.fossorial = {
     };
+
     systemd.services.fossorial = {
       description = "Fossorial Service";
       wantedBy = [ "multi-user.target" ];
@@ -82,11 +83,23 @@ in
         NODE_ENV = "development";
         ENVIRONMENT= "prod";
       };
+      preStart = ''
+        mkdir -p ${cfg.dataDir}/config
+        touch ${cfg.dataDir}/config/config.yml
+        cp ${cfgFile} ${cfg.dataDir}/config/config.yml
+      '';
       serviceConfig = {
         User = "fossorial";
         Group = "fossorial";
         GuessMainPID = true;
         WorkingDirectory = cfg.dataDir;
+
+        BindPaths = [
+          "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
+          "${pkgs.fossorial}/public:${cfg.dataDir}/public"
+          "${pkgs.fossorial}/dist:${cfg.dataDir}/dist"
+          "${pkgs.fossorial}/node_modules:${cfg.dataDir}/node_modules"
+        ];
 
         ExecStartPre = utils.escapeSystemdExecArgs [
           (lib.getExe pkgs.nodejs_22)
@@ -99,5 +112,4 @@ in
       };
     };
   };
-
 }
