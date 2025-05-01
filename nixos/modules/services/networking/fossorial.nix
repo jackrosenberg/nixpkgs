@@ -7,7 +7,13 @@
 }:
 let
   cfg = config.services.fossorial;
-  cfgFile = pkgs.writeText "config.yml" lib.generators.toYAML { } cfg;
+  cfgTxt = lib.generators.toYAML { } settings;
+  cfgFile = pkgs.writeText "config.yml" cfgTxt;
+  settings =  {
+    app = {
+      dashboard_url = "http:alksdjflaksjdfla";
+    };
+  };
 in
 {
   options = {
