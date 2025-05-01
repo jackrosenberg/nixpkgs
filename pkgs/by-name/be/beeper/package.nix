@@ -9,10 +9,10 @@
 }:
 let
   pname = "beeper";
-  version = "4.0.623";
+  version = "4.0.640";
   src = fetchurl {
     url = "https://beeper-desktop.download.beeper.com/builds/Beeper-${version}.AppImage";
-    hash = "sha256-K043RQ5BoS1ysnmY+LpRixBmMx2XCbRzhWnWsxg26dg=";
+    hash = "sha256-hYbTYvfrTpRPRwXXgNCqKeEtiRpuLj6sYIYnfJ3aMv4=";
   };
   appimageContents = appimageTools.extract {
     inherit version pname src;
@@ -27,12 +27,12 @@ appimageTools.wrapType2 {
     # disable creating a desktop file and icon in the home folder during runtime
     linuxConfigFilename=$out/resources/app/build/main/linux-*.mjs
     echo "export function registerLinuxConfig() {}" > $linuxConfigFilename
-    substituteInPlace $out/beepertexts.desktop --replace-fail "AppRun" "beeper"
   '';
 
   extraInstallCommands = ''
     install -Dm 644 ${appimageContents}/beepertexts.png $out/share/icons/hicolor/512x512/apps/beepertexts.png
     install -Dm 644 ${appimageContents}/beepertexts.desktop -t $out/share/applications/
+    substituteInPlace $out/share/applications/beepertexts.desktop --replace-fail "AppRun" "beeper"
 
     . ${makeWrapper}/nix-support/setup-hook
     wrapProgram $out/bin/beeper \

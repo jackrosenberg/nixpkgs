@@ -17,6 +17,7 @@
   python3,
   # Misc dependencies
   code-minimap,
+  dailies,
   dasht,
   deno,
   direnv,
@@ -372,6 +373,12 @@ in
               substituteInPlace "$out"/plugin/libclang.py \
                 --replace-fail "/usr/lib/clang" "${llvmPackages.clang.cc}/lib/clang"
       '';
+  };
+
+  claude-code-nvim = super.claude-code-nvim.overrideAttrs {
+    dependencies = with self; [
+      plenary-nvim
+    ];
   };
 
   clighter8 = super.clighter8.overrideAttrs {
@@ -882,6 +889,12 @@ in
       patchShebangs .
       ./install.sh
     '';
+  };
+
+  dailies-nvim = super.dailies-nvim.overrideAttrs {
+    runtimeDeps = [
+      dailies
+    ];
   };
 
   darkearth-nvim = super.darkearth-nvim.overrideAttrs {
@@ -2226,6 +2239,8 @@ in
       "nvchad.cheatsheet.grid"
       "nvchad.cheatsheet.simple"
       "nvchad.blink.config"
+      # Circular dependency with base46
+      "nvchad.utils"
     ];
   };
 
@@ -2727,6 +2742,10 @@ in
       self.blink-cmp
       self.nvim-cmp
     ];
+  };
+
+  peek-nvim = super.peek-nvim.overrideAttrs {
+    runtimeDeps = [ deno ];
   };
 
   persisted-nvim = super.persisted-nvim.overrideAttrs {
@@ -3850,6 +3869,15 @@ in
 
   wtf-nvim = super.wtf-nvim.overrideAttrs {
     dependencies = [ self.nui-nvim ];
+  };
+
+  xmake-nvim = super.xmake-nvim.overrideAttrs {
+    nvimSkipModule = [
+      # attempt to index upvalue 'options' (a nil value)
+      "xmake.action"
+      "xmake.command"
+      "xmake.runner_wrapper"
+    ];
   };
 
   yanky-nvim = super.yanky-nvim.overrideAttrs {
