@@ -11,7 +11,7 @@ let
   cfgFile = pkgs.writeText "config.yml" cfgTxt;
   settings = {
     app = {
-      dashboard_url = "https://${cfg.baseDomain}";
+      dashboard_url = cfg.dashboardDomain;
       log_level = "info";
       save_logs = false;
     };
@@ -83,9 +83,9 @@ in
           '';
         example = "example.com";
       };
-      dashboardDomainName = lib.mkOption {
+      dashboardDomain = lib.mkOption {
         type = lib.types.str;
-        default = "";
+        default = "pangolin.example.com";
         description = ''
               The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
         '';
