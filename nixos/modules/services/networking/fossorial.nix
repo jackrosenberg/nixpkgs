@@ -80,14 +80,14 @@ in
         default = "example.com";
         description = ''
            Your base fully qualified domain name (without any subdomains)
-          '';
+        '';
         example = "example.com";
       };
       dashboardDomain = lib.mkOption {
         type = lib.types.str;
         default = "pangolin.example.com";
         description = ''
-              The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
+          The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
         '';
         example = "pangolin.example.com";
       };
@@ -96,33 +96,36 @@ in
         type = lib.types.str;
         default = "";
         description = ''
-              An email address for SSL certificate registration with Lets Encrypt. This should be an email you have access to.
+          An email address for SSL certificate registration with Lets Encrypt. This should be an email you have access to.
         '';
       };
       tunneling = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = ''
-              You can choose not to install Gerbil for tunneling support - in this config it will just be a normal reverse proxy. See how to use without tunneling.
+          You can choose not to install Gerbil for tunneling support - in this config it will just be a normal reverse proxy. See how to use without tunneling.
         '';
       };
       externalPort = lib.mkOption {
         type = lib.types.port;
         default = 3000;
         description = ''
-          Specifies the port to listen on for the external server '';
+          Specifies the port to listen on for the external server.
+        '';
       };
       internalPort = lib.mkOption {
         type = lib.types.port;
         default = 3001;
         description = ''
-          Specifies the port to listen on for the internal server '';
+          Specifies the port to listen on for the internal server.
+        '';
       };
       nextPort = lib.mkOption {
         type = lib.types.port;
         default = 3002;
         description = ''
-          Specifies the port to listen on for the nextjs frontend '';
+          Specifies the port to listen on for the nextjs frontend.
+        '';
       };
       dataDir = lib.mkOption {
         type = lib.types.str;
