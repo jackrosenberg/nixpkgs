@@ -7,9 +7,9 @@
 }:
 let
   cfg = config.services.fossorial;
-  cfgTxt = lib.generators.toYAML { } settings;
+  cfgTxt = lib.generators.toYAML { } pangolinConf;
   cfgFile = pkgs.writeText "config.yml" cfgTxt;
-  settings = {
+  pangolinConf = {
     app = {
       dashboard_url = cfg.dashboardDomain;
       log_level = "info";
@@ -147,43 +147,66 @@ in
     users.groups.fossorial = {
     };
 
-    systemd.services.fossorial = {
-      description = "Fossorial Service";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+    systemd.services = {
+      fossorial = {
+        description = "Fossorial Service";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
 
-      environment = {
-        NODE_OPTIONS = "enable-source-maps";
-        NODE_ENV = "development";
-        ENVIRONMENT= "prod";
+        environment = {
+          NODE_OPTIONS = "enable-source-maps";
+          NODE_ENV = "development";
+          ENVIRONMENT= "prod";
+        };
+        preStart = ''
+          mkdir -p ${cfg.dataDir}/config
+          touch ${cfg.dataDir}/config/config.yml
+          cp ${cfgFile} ${cfg.dataDir}/config/config.yml
+        '';
+        serviceConfig = {
+          User = "fossorial";
+          Group = "fossorial";
+          # GuessMainPID = true;
+          WorkingDirectory = cfg.dataDir;
+          Restart = "always";
+
+          BindPaths = [
+            "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
+            "${pkgs.fossorial}/public:${cfg.dataDir}/public"
+            "${pkgs.fossorial}/dist:${cfg.dataDir}/dist"
+            "${pkgs.fossorial}/node_modules:${cfg.dataDir}/node_modules"
+          ];
+
+          ExecStartPre = utils.escapeSystemdExecArgs [
+            (lib.getExe pkgs.nodejs_22)
+            "${pkgs.fossorial}/dist/migrations.mjs"
+          ];
+          ExecStart = utils.escapeSystemdExecArgs [
+            (lib.getExe pkgs.nodejs_22)
+            "${pkgs.fossorial}/dist/server.mjs"
+          ];
+        };
       };
-      preStart = ''
-        mkdir -p ${cfg.dataDir}/config
-        touch ${cfg.dataDir}/config/config.yml
-        cp ${cfgFile} ${cfg.dataDir}/config/config.yml
-      '';
-      serviceConfig = {
-        User = "fossorial";
-        Group = "fossorial";
-        GuessMainPID = true;
-        WorkingDirectory = cfg.dataDir;
-        Restart = "always";
+      gerbil = {
+        description = "Gerbil Service";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
 
-        BindPaths = [
-          "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
-          "${pkgs.fossorial}/public:${cfg.dataDir}/public"
-          "${pkgs.fossorial}/dist:${cfg.dataDir}/dist"
-          "${pkgs.fossorial}/node_modules:${cfg.dataDir}/node_modules"
-        ];
+        serviceConfig = {
+          User = "fossorial";
+          Group = "fossorial";
+          # GuessMainPID = true;
+          WorkingDirectory = cfg.dataDir;
+          Restart = "always";
 
-        ExecStartPre = utils.escapeSystemdExecArgs [
-          (lib.getExe pkgs.nodejs_22)
-          "${pkgs.fossorial}/dist/migrations.mjs"
-        ];
-        ExecStart = utils.escapeSystemdExecArgs [
-          (lib.getExe pkgs.nodejs_22)
-          "${pkgs.fossorial}/dist/server.mjs"
-        ];
+          ExecStart = utils.escapeSystemdExecArgs [
+            ("${pkgs.fossorial-gerbil}/bin/gerbil")
+            "--reachableAt=http://gerbil:3003"
+            "--generateAndSaveKeyTo=./config/key"
+            "--remoteConfig=http://localhost:3001/api/v1/gerbil/get-config"
+            "--reportBandwidthTo=http://localhost:3001/api/v1/gerbil/receive-bandwidth"
+          ];
+        };
       };
     };
   };
