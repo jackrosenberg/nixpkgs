@@ -212,6 +212,7 @@ in
     services.traefik = {
       enable = true;
       dataDir = "${cfg.dataDir}/config";
+      group = "fossorial";
       staticConfigOptions = {
         api = {
           insecure = true;
@@ -249,7 +250,7 @@ in
 
               };
               email = cfg.letsEncryptEmail; # REPLACE THIS WITH YOUR EMAIL
-              storage = "/letsencrypt/acme.json";
+              storage = "${cfg.dataDir}/config/letsencrypt/acme.json";
               caServer = "https://acme-v02.api.letsencrypt.org/directory";
             };
           };
