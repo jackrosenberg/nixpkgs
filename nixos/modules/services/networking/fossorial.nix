@@ -145,6 +145,7 @@ in
       createHome = true;
     };
     users.groups.fossorial = {
+      # members = [ "fossorial" "traefik"];
     };
 
     systemd.services = {
@@ -156,7 +157,7 @@ in
         environment = {
           NODE_OPTIONS = "enable-source-maps";
           NODE_ENV = "development";
-          ENVIRONMENT= "prod";
+          ENVIRONMENT = "prod";
         };
         preStart = ''
           mkdir -p ${cfg.dataDir}/config
@@ -166,9 +167,11 @@ in
         serviceConfig = {
           User = "fossorial";
           Group = "fossorial";
-          # GuessMainPID = true;
           WorkingDirectory = cfg.dataDir;
           Restart = "always";
+          GuessMainPID = true;
+          # allow fossorial group members to write to folder
+          UMask = "002";
 
           BindPaths = [
             "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
@@ -190,12 +193,12 @@ in
       gerbil = {
         description = "Gerbil Service";
         wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
+        after = [ "network.target" "fossorial.service" ];
+        requires = [ "fossorial.service" ];
 
         serviceConfig = {
           User = "fossorial";
           Group = "fossorial";
-          # GuessMainPID = true;
           WorkingDirectory = cfg.dataDir;
           Restart = "always";
 
@@ -209,156 +212,155 @@ in
         };
       };
     };
-    services.traefik = {
-      enable = true;
-      dataDir = "${cfg.dataDir}/config";
-      group = "fossorial";
-      staticConfigOptions = {
-        api = {
-          insecure = true;
-          dashboard = true;
-        };
-        providers = {
-          http = {
-            endpoint = "http://localhost:3001/api/v1/traefik-config";
-            pollInterval = "5s";
-          };
-          file = {
-            filename = "/etc/traefik/dynamic_config.yml";
-          };
-        };
-
-        experimental = {
-          plugins = {
-            badger = {
-              moduleName = "github.com/fosrl/badger";
-              version = "v1.1.0";
-            };
-          };
-        };
-
-        log = {
-          level = "INFO";
-          format = "common";
-        };
-
-        certificatesResolvers = {
-          letsencrypt = {
-            acme = {
-              httpChallenge = {
-                entryPoint = "web";
-
-              };
-              email = cfg.letsEncryptEmail; # REPLACE THIS WITH YOUR EMAIL
-              storage = "${cfg.dataDir}/config/letsencrypt/acme.json";
-              caServer = "https://acme-v02.api.letsencrypt.org/directory";
-            };
-          };
-        };
-        entryPoints = {
-          web = {
-            address = ":80";
-          };
-          websecure = {
-            address = ":443";
-            transport = {
-              respondingTimeouts = {
-                readTimeout = "30m";
-              };
-            };
-            http = {
-              tls = {
-                certResolver = "letsencrypt";
-              };
-            };
-          };
-        };
-        serversTransport = {
-          insecureSkipVerify = true;
-        };
-      };
-      dynamicConfigOptions = {
-        http = {
-          middlewares = {
-            redirect-to-https = {
-              redirectScheme = {
-                scheme = "https";
-              };
-            };
-          };
-
-          routers = {
-            # HTTP to HTTPS redirect router
-            main-app-router-redirect = {
-              rule = "Host(`${cfg.dashboardDomain}`)"; # REPLACE THIS WITH YOUR DOMAIN
-              service = "next-service";
-              entryPoints = [
-                "web"
-              ];
-              middlewares = [
-                "redirect-to-https"
-              ];
-            };
-
-            # Next.js router (handles everything except API and WebSocket paths)
-            next-router = {
-              rule = "Host(`${cfg.dashboardDomain}`) && !PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
-              service = "next-service";
-              entryPoints = [
-                "websecure"
-              ];
-              tls = {
-                certResolver = "letsencrypt";
-              };
-            };
-
-            # API router (handles /api/v1 paths)
-            api-router = {
-              rule = "Host(`${cfg.dashboardDomain}`) && PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
-              service = "api-service";
-              entryPoints = [
-                "websecure"
-              ];
-              tls = {
-                certResolver = "letsencrypt";
-              };
-            };
-
-            # WebSocket router
-            ws-router = {
-              rule = "Host(`${cfg.dashboardDomain}`)"; # REPLACE THIS WITH YOUR DOMAIN
-              service = "api-service";
-              entryPoints = [
-                "websecure"
-              ];
-              tls = {
-                certResolver = "letsencrypt";
-              };
-            };
-          };
-
-          services = {
-            next-service = {
-              loadBalancer = {
-                servers = [
-                  {
-                    url = "http://localhost:3002"; # Next.js server\
-                  }
-                ];
-              };
-            };
-            api-service = {
-              loadBalancer = {
-                servers = [
-                  {
-                    url = "http://localhost:3000"; # API/WebSocket server
-                  }
-                ];
-              };
-            };
-          };
-        };
-      };
-    };
+    # services.traefik = {
+    #   enable = true;
+    #   dataDir = "${cfg.dataDir}/config/traefik";
+    #   staticConfigOptions = {
+    #     api = {
+    #       insecure = true;
+    #       dashboard = true;
+    #     };
+    #     providers = {
+    #       http = {
+    #         endpoint = "http://localhost:3001/api/v1/traefik-config";
+    #         pollInterval = "5s";
+    #       };
+    #       file = {
+    #         filename = "/etc/traefik/dynamic_config.yml";
+    #       };
+    #     };
+    #
+    #     experimental = {
+    #       plugins = {
+    #         badger = {
+    #           moduleName = "github.com/fosrl/badger";
+    #           version = "v1.1.0";
+    #         };
+    #       };
+    #     };
+    #
+    #     log = {
+    #       level = "INFO";
+    #       format = "common";
+    #     };
+    #
+    #     certificatesResolvers = {
+    #       letsencrypt = {
+    #         acme = {
+    #           httpChallenge = {
+    #             entryPoint = "web";
+    #
+    #           };
+    #           email = cfg.letsEncryptEmail; # REPLACE THIS WITH YOUR EMAIL
+    #           storage = "${cfg.dataDir}/config/letsencrypt/acme.json";
+    #           caServer = "https://acme-v02.api.letsencrypt.org/directory";
+    #         };
+    #       };
+    #     };
+    #     entryPoints = {
+    #       web = {
+    #         address = ":80";
+    #       };
+    #       websecure = {
+    #         address = ":443";
+    #         transport = {
+    #           respondingTimeouts = {
+    #             readTimeout = "30m";
+    #           };
+    #         };
+    #         http = {
+    #           tls = {
+    #             certResolver = "letsencrypt";
+    #           };
+    #         };
+    #       };
+    #     };
+    #     serversTransport = {
+    #       insecureSkipVerify = true;
+    #     };
+    #   };
+    #   dynamicConfigOptions = {
+    #     http = {
+    #       middlewares = {
+    #         redirect-to-https = {
+    #           redirectScheme = {
+    #             scheme = "https";
+    #           };
+    #         };
+    #       };
+    #
+    #       routers = {
+    #         # HTTP to HTTPS redirect router
+    #         main-app-router-redirect = {
+    #           rule = "Host(`${cfg.dashboardDomain}`)"; # REPLACE THIS WITH YOUR DOMAIN
+    #           service = "next-service";
+    #           entryPoints = [
+    #             "web"
+    #           ];
+    #           middlewares = [
+    #             "redirect-to-https"
+    #           ];
+    #         };
+    #
+    #         # Next.js router (handles everything except API and WebSocket paths)
+    #         next-router = {
+    #           rule = "Host(`${cfg.dashboardDomain}`) && !PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
+    #           service = "next-service";
+    #           entryPoints = [
+    #             "websecure"
+    #           ];
+    #           tls = {
+    #             certResolver = "letsencrypt";
+    #           };
+    #         };
+    #
+    #         # API router (handles /api/v1 paths)
+    #         api-router = {
+    #           rule = "Host(`${cfg.dashboardDomain}`) && PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
+    #           service = "api-service";
+    #           entryPoints = [
+    #             "websecure"
+    #           ];
+    #           tls = {
+    #             certResolver = "letsencrypt";
+    #           };
+    #         };
+    #
+    #         # WebSocket router
+    #         ws-router = {
+    #           rule = "Host(`${cfg.dashboardDomain}`)"; # REPLACE THIS WITH YOUR DOMAIN
+    #           service = "api-service";
+    #           entryPoints = [
+    #             "websecure"
+    #           ];
+    #           tls = {
+    #             certResolver = "letsencrypt";
+    #           };
+    #         };
+    #       };
+    #
+    #       services = {
+    #         next-service = {
+    #           loadBalancer = {
+    #             servers = [
+    #               {
+    #                 url = "http://localhost:3002"; # Next.js server\
+    #               }
+    #             ];
+    #           };
+    #         };
+    #         api-service = {
+    #           loadBalancer = {
+    #             servers = [
+    #               {
+    #                 url = "http://localhost:3000"; # API/WebSocket server
+    #               }
+    #             ];
+    #           };
+    #         };
+    #       };
+    #     };
+    #   };
+    # };
   };
 }
