@@ -127,6 +127,13 @@ in
           Specifies the port to listen on for the nextjs frontend.
         '';
       };
+      gerbilPort = lib.mkOption {
+        type = lib.types.port;
+        default = 3003;
+        description = ''
+          Specifies the port to listen on for gerbil.
+        '';
+      };
       dataDir = lib.mkOption {
         type = lib.types.str;
         default = "/var/lib/fossorial";
@@ -196,6 +203,10 @@ in
         after = [ "network.target" "fossorial.service" ];
         requires = [ "fossorial.service" ];
 
+        environment = {
+          LISTEN = "localhost:" + builtins.toString cfg.gerbilPort;
+        };
+
         serviceConfig = {
           User = "fossorial";
           Group = "fossorial";
@@ -206,10 +217,10 @@ in
 
           ExecStart = utils.escapeSystemdExecArgs [
             ("${pkgs.fossorial-gerbil}/bin/gerbil")
-            "--reachableAt=http://gerbil:3003"
-            "--generateAndSaveKeyTo=${cfg.dataDir}/config/key"
-            "--remoteConfig=http://localhost:3001/api/v1/gerbil/get-config"
-            "--reportBandwidthTo=http://localhost:3001/api/v1/gerbil/receive-bandwidth"
+            "--reachableAt=http://gerbil:${builtins.toString cfg.gerbilPort}"
+            "--generateAndSaveKeyTo=${builtins.toString cfg.dataDir}/config/key"
+            "--remoteConfig=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/get-config"
+            "--reportBandwidthTo=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/receive-bandwidth"
           ];
         };
       };
