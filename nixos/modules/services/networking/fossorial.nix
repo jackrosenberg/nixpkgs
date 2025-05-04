@@ -201,11 +201,13 @@ in
           Group = "fossorial";
           WorkingDirectory = cfg.dataDir;
           Restart = "always";
+          AmbientCapabilities = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE"];
+          CapabilityBoundingSet = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE"];
 
           ExecStart = utils.escapeSystemdExecArgs [
             ("${pkgs.fossorial-gerbil}/bin/gerbil")
             "--reachableAt=http://gerbil:3003"
-            "--generateAndSaveKeyTo=./config/key"
+            "--generateAndSaveKeyTo=${cfg.dataDir}/config/key"
             "--remoteConfig=http://localhost:3001/api/v1/gerbil/get-config"
             "--reportBandwidthTo=http://localhost:3001/api/v1/gerbil/receive-bandwidth"
           ];
