@@ -146,15 +146,10 @@ in
 
   config = lib.mkIf cfg.enable {
 
-   networking.firewall = lib.mkIf cfg.openFirewall {
-      allowedTCPPorts = [
-        80
-        443
-      ];
-      allowedUDPPorts = [
-        51820
-      ];
-    };
+    networking.firewall = lib.mkIf cfg.openFirewall {
+       allowedTCPPorts = [ 80 443 ];
+       allowedUDPPorts = [ 51820 ];
+     };
 
     users.users.fossorial = {
       description = "Fossorial service user";
