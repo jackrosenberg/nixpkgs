@@ -169,7 +169,7 @@ in
           ENVIRONMENT = "prod";
         };
         preStart = ''
-          mkdir -p ${cfg.dataDir}/config/letsencrypt
+          mkdir -p ${cfg.dataDir}/config
           touch ${cfg.dataDir}/config/config.yml
           cp ${cfgFile} ${cfg.dataDir}/config/config.yml
         '';
@@ -201,8 +201,9 @@ in
       };
       gerbil = {
         description = "Gerbil Service";
-        wantedBy = [ "multi-user.target" ];
+        wantedBy = [ "multi-user.target" "traefik.service"];
         after = [ "network.target" "fossorial.service" ];
+        before = [ "traefik.service" ];
         requires = [ "fossorial.service" ];
 
         # TODO: add the rest of the envvars
@@ -230,7 +231,8 @@ in
     };
     # make the letsencrypt folder like traefik expects it
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}/config' 0755 fossorial fossorial - - "
+      "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
+      "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
       "d '${cfg.dataDir}/config/letsencrypt' 0700 traefik traefik - - "
     ];
     services.traefik = {
