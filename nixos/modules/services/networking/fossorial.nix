@@ -233,12 +233,14 @@ in
           ];
         };
       };
+      # make sure traefik places plugins in local dir instead of /
+      traefik.serviceConfig.WorkingDirectory = "${cfg.dataDir}/config/traefik";
     };
 
     systemd.tmpfiles.rules = [
       "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
       "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
-      "d '${cfg.dataDir}/config/letsencrypt' 0700 traefik traefik - - "
+      "d '${cfg.dataDir}/config/letsencrypt' 0755 traefik traefik - - "
     ];
 
     services.traefik = {
