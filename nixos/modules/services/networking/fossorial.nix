@@ -155,19 +155,18 @@ in
       members = [ "fossorial" "traefik"];
     };
 
+        # order is as follows
+        # "systemd-tmpfiles-resetup.service"
+        # "fossorial.service"
+        # "gerbil.service"
+        # "traefik.service"
+
     systemd.services = {
       fossorial = {
         description = "Fossorial Service";
         wantedBy = [ "multi-user.target" ];
         requires = [ "network.target" "systemd-tmpfiles-resetup.service"];
         after = [ "network.target" "systemd-tmpfiles-resetup.service"];
-        # order is as follows
-        # bindsTo = [
-        #   "systemd-tmpfiles-resetup.service"
-        #   # fossorial.service
-        #   "gerbil.service"
-        #   "traefik.service" ];
-
         environment = {
           NODE_OPTIONS = "enable-source-maps";
           NODE_ENV = "development";
