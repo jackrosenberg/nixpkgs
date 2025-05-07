@@ -148,10 +148,8 @@ in
 
    networking.firewall = lib.mkIf cfg.openFirewall {
       allowedTCPPorts = [
-        cfg.internalPort
-        cfg.externalPort
-        cfg.nextPort
-        cfg.gerbilPort
+        80
+        443
       ];
       allowedUDPPorts = [
         51820
