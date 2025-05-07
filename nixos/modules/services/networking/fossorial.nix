@@ -75,6 +75,14 @@ in
       enable = lib.mkEnableOption "Fossorial";
       package = lib.mkPackageOption pkgs "fossorial" { };
 
+      openFirewall = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Whether to open the ports in the firewall for the fossorial service(s)
+        '';
+      };
+
       baseDomain = lib.mkOption {
         type = lib.types.str;
         default = "example.com";
@@ -137,6 +145,19 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+
+   networking.firewall = lib.mkIf cfg.openFirewall {
+      allowedTCPPorts = [
+        cfg.internalPort
+        cfg.externalPort
+        cfg.nextPort
+        cfg.gerbilPort
+      ];
+      allowedUDPPorts = [
+        51820
+      ];
+    };
+
     users.users.fossorial = {
       description = "Fossorial service user";
       group = "fossorial";
