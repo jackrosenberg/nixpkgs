@@ -11,7 +11,7 @@ let
   cfgFile = pkgs.writeText "config.yml" cfgTxt;
   pangolinConf = {
     app = {
-      dashboard_url = cfg.dashboardDomain;
+      dashboard_url = "https://${cfg.dashboardDomain}";
       log_level = "info";
       save_logs = false;
     };
@@ -87,7 +87,7 @@ in
         type = lib.types.str;
         default = "pangolin.example.com";
         description = ''
-          The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain.
+          The domain where the application will be hosted. This is used for many things, including generating links. You can run Pangolin on a subdomain or root domain. Do not prefix with http or https
         '';
         example = "pangolin.example.com";
       };
@@ -158,10 +158,15 @@ in
     systemd.services = {
       fossorial = {
         description = "Fossorial Service";
-        wantedBy = [ "multi-user.target" "traefik.service"];
-        before = [ "traefik.service" ];
-        after = [ "network.target" ];
-        # bindsTo = [ "gerbil.service" "traefik.service" ];
+        wantedBy = [ "multi-user.target" ];
+        requires = [ "network.target" "systemd-tmpfiles-resetup.service"];
+        after = [ "network.target" "systemd-tmpfiles-resetup.service"];
+        # order is as follows
+        # bindsTo = [
+        #   "systemd-tmpfiles-resetup.service"
+        #   # fossorial.service
+        #   "gerbil.service"
+        #   "traefik.service" ];
 
         environment = {
           NODE_OPTIONS = "enable-source-maps";
@@ -201,10 +206,11 @@ in
       };
       gerbil = {
         description = "Gerbil Service";
-        wantedBy = [ "multi-user.target" "traefik.service"];
-        after = [ "network.target" "fossorial.service" ];
-        before = [ "traefik.service" ];
+        wantedBy = [ "multi-user.target" ];
+        after = [ "fossorial.service" ];
         requires = [ "fossorial.service" ];
+        before = [ "traefik.service" ];
+        requiredBy  = [ "traefik.service" ];
 
         # TODO: add the rest of the envvars
         environment = {
@@ -229,14 +235,15 @@ in
         };
       };
     };
-    # make the letsencrypt folder like traefik expects it
+
     systemd.tmpfiles.rules = [
       "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
       "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
       "d '${cfg.dataDir}/config/letsencrypt' 0700 traefik traefik - - "
     ];
+
     services.traefik = {
-      enable = true; #
+      enable = true;
       group = "fossorial";
       dataDir = "${cfg.dataDir}/config/traefik";
       staticConfigOptions = {
