@@ -56,7 +56,7 @@ let
     };
     users = {
       server_admin = {
-        email = "admin@example.com";
+        email = cfg.letsEncryptEmail;
         password = "Password123!";
       };
     };
@@ -97,13 +97,6 @@ in
         default = "";
         description = ''
           An email address for SSL certificate registration with Lets Encrypt. This should be an email you have access to.
-        '';
-      };
-      tunneling = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          You can choose not to install Gerbil for tunneling support - in this config it will just be a normal reverse proxy. See how to use without tunneling.
         '';
       };
       externalPort = lib.mkOption {
@@ -154,13 +147,11 @@ in
     users.groups.fossorial = {
       members = [ "fossorial" "traefik"];
     };
-
-        # order is as follows
-        # "systemd-tmpfiles-resetup.service"
-        # "fossorial.service"
-        # "gerbil.service"
-        # "traefik.service"
-
+    # order is as follows
+    # "systemd-tmpfiles-resetup.service"
+    # "fossorial.service"
+    # "gerbil.service"
+    # "traefik.service"
     systemd.services = {
       fossorial = {
         description = "Fossorial Service";
@@ -254,14 +245,13 @@ in
         };
         providers = {
           http = {
-            endpoint = "http://localhost:3001/api/v1/traefik-config";
+            endpoint = "http://localhost:${builtins.toString cfg.internalPort}/api/v1/traefik-config";
             pollInterval = "5s";
           };
           file = {
             filename = "/etc/traefik/dynamic_config.yml";
           };
         };
-
         experimental = {
           plugins = {
             badger = {
@@ -270,12 +260,10 @@ in
             };
           };
         };
-
         log = {
           level = "INFO";
           format = "common";
         };
-
         certificatesResolvers = {
           letsencrypt = {
             acme = {
@@ -319,7 +307,6 @@ in
               };
             };
           };
-
           routers = {
             # HTTP to HTTPS redirect router
             main-app-router-redirect = {
@@ -332,7 +319,6 @@ in
                 "redirect-to-https"
               ];
             };
-
             # Next.js router (handles everything except API and WebSocket paths)
             next-router = {
               rule = "Host(`${cfg.dashboardDomain}`) && !PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
@@ -344,7 +330,6 @@ in
                 certResolver = "letsencrypt";
               };
             };
-
             # API router (handles /api/v1 paths)
             api-router = {
               rule = "Host(`${cfg.dashboardDomain}`) && PathPrefix(`/api/v1`)"; # REPLACE THIS WITH YOUR DOMAIN
@@ -356,7 +341,6 @@ in
                 certResolver = "letsencrypt";
               };
             };
-
             # WebSocket router
             ws-router = {
               rule = "Host(`${cfg.dashboardDomain}`)"; # REPLACE THIS WITH YOUR DOMAIN
@@ -369,13 +353,12 @@ in
               };
             };
           };
-
           services = {
             next-service = {
               loadBalancer = {
                 servers = [
                   {
-                    url = "http://localhost:3002"; # Next.js server\
+                    url = "http://localhost:${builtins.toString cfg.nextPort}"; # Next.js server\
                   }
                 ];
               };
@@ -384,7 +367,7 @@ in
               loadBalancer = {
                 servers = [
                   {
-                    url = "http://localhost:3000"; # API/WebSocket server
+                    url = "http://localhost:${builtins.toString cfg.externalPort}"; # API/WebSocket server
                   }
                 ];
               };
