@@ -7,7 +7,7 @@ index bb705eb37573..0a88eb840d19 100644
  	// First, try to delete any existing rules
  	for _, chain := range chains {
 -		deleteCmd := exec.Command("/usr/sbin/iptables",
-+		deleteCmd := exec.Command("iptables",
++		deleteCmd := exec.Command("@iptables@",
  			"-t", "mangle",
  			"-D", chain,
  			"-p", "tcp",
@@ -16,7 +16,7 @@ index bb705eb37573..0a88eb840d19 100644
  	var errors []error
  	for _, chain := range chains {
 -		addCmd := exec.Command("/usr/sbin/iptables",
-+		addCmd := exec.Command("iptables",
++		addCmd := exec.Command("@iptables@",
  			"-t", "mangle",
  			"-A", chain,
  			"-p", "tcp",
@@ -25,7 +25,7 @@ index bb705eb37573..0a88eb840d19 100644
  
  		// Verify the rule was added
 -		checkCmd := exec.Command("/usr/sbin/iptables",
-+		checkCmd := exec.Command("iptables",
++		checkCmd := exec.Command("@iptables@",
  			"-t", "mangle",
  			"-C", chain,
  			"-p", "tcp",
