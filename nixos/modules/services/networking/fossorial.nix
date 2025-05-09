@@ -246,6 +246,7 @@ in
       "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
       "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
       "d '${cfg.dataDir}/config/letsencrypt' 0755 traefik traefik - - "
+      "d '${cfg.dataDir}/config/traefik' 0755 traefik traefik - - "
     ];
 
     services.traefik = {
