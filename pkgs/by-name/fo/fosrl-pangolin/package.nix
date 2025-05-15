@@ -22,15 +22,10 @@ buildNpmPackage rec {
   # fix the dependency on google fonts
   patches = [ ./dep.patch ];
   buildPhase = ''
-    runHook preBuild
-
     npx drizzle-kit generate --dialect sqlite --schema ./server/db/schemas/ --out init
     npm run build
-
-    runHook postBuild
   '';
 
-  # TODO: cleanup
   installPhase = ''
     mkdir -p $out/
 
@@ -45,8 +40,8 @@ buildNpmPackage rec {
 
     cp server/db/names.json $out/dist/names.json
     cp -r public $out/public
+    ls -la node_modules/@node-rs
     cp -r node_modules $out/
-
   '';
 }
 
