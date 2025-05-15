@@ -20,7 +20,7 @@ buildNpmPackage rec {
   npmDepsHash = "sha256-1gqmPP1/GVuIbuLW8kUYtdCP0lpvMD2G/Wd38H8hSD0=";
   nativeBuildInputs = [ esbuild ];
   # fix the dependency on google fonts
-  # patches = [ ./dep.patch ];
+  patches = [ ./dep.patch ];
   buildPhase = ''
     runHook preBuild
 
