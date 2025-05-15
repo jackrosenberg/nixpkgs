@@ -8,19 +8,19 @@
 
 buildNpmPackage rec {
   pname = "pangolin";
-  version = "1.2.0";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "fosrl";
     repo = "pangolin";
     tag = "${version}";
-    hash = "sha256-2yrim4pr8cgIh/FBuGIuK+ycwImpMiz+m21H5qYARmU=";
+    hash = "sha256-YCXL9UmsuY5qQUqRHbZEF5jrL24CKZMk/cVNW+DkAxI=";
   };
 
-  npmDepsHash = "sha256-fi4e79Bk1LC/LizBJ+EhCjDzLR5ZocgVyWbSXsEJKdw=";
+  npmDepsHash = "sha256-1gqmPP1/GVuIbuLW8kUYtdCP0lpvMD2G/Wd38H8hSD0=";
   nativeBuildInputs = [ esbuild ];
   # fix the dependency on google fonts
-  patches = [ ./dep.patch ];
+  # patches = [ ./dep.patch ];
   buildPhase = ''
     runHook preBuild
 
