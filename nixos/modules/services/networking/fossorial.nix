@@ -192,19 +192,19 @@ in
           UMask = "022";
 
           BindPaths = [
-            "${pkgs.fossorial}/.next:${cfg.dataDir}/.next"
-            "${pkgs.fossorial}/public:${cfg.dataDir}/public"
-            "${pkgs.fossorial}/dist:${cfg.dataDir}/dist"
-            "${pkgs.fossorial}/node_modules:${cfg.dataDir}/node_modules"
+            "${pkgs.fosrl-pangolin}/.next:${cfg.dataDir}/.next"
+            "${pkgs.fosrl-pangolin}/public:${cfg.dataDir}/public"
+            "${pkgs.fosrl-pangolin}/dist:${cfg.dataDir}/dist"
+            "${pkgs.fosrl-pangolin}/node_modules:${cfg.dataDir}/node_modules"
           ];
 
           ExecStartPre = utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.nodejs_22)
-            "${pkgs.fossorial}/dist/migrations.mjs"
+            "${pkgs.fosrl-pangolin}/dist/migrations.mjs"
           ];
           ExecStart = utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.nodejs_22)
-            "${pkgs.fossorial}/dist/server.mjs"
+            "${pkgs.fosrl-pangolin}/dist/server.mjs"
           ];
         };
       };
@@ -230,7 +230,7 @@ in
           CapabilityBoundingSet = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE"];
 
           ExecStart = utils.escapeSystemdExecArgs [
-            ("${pkgs.fossorial-gerbil}/bin/gerbil")
+            ("${pkgs.fosrl-gerbil}/bin/gerbil")
             "--reachableAt=http://gerbil:${builtins.toString cfg.gerbilPort}"
             "--generateAndSaveKeyTo=${builtins.toString cfg.dataDir}/config/key"
             "--remoteConfig=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/get-config"
