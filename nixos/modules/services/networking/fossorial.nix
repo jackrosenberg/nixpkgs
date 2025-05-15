@@ -45,7 +45,7 @@ let
      base_endpoint = cfg.baseDomain;
      block_size = 24;
      site_block_size = 30;
-     subnet_group = "100.89.137.0/20";
+     subnet_group = "100.89.128.1/24";
      use_subdomain = true;
     };
     rate_limits = {
@@ -246,7 +246,6 @@ in
       "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
       "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
       "d '${cfg.dataDir}/config/letsencrypt' 0755 traefik traefik - - "
-      "d '${cfg.dataDir}/config/traefik' 0755 traefik traefik - - "
     ];
 
     services.traefik = {
