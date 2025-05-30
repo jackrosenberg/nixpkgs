@@ -231,7 +231,7 @@ in
 
           ExecStart = utils.escapeSystemdExecArgs [
             ("${pkgs.fosrl-gerbil}/bin/gerbil")
-            "--reachableAt=http://gerbil:${builtins.toString cfg.gerbilPort}"
+            "--reachableAt=http://localhost:${builtins.toString cfg.gerbilPort}"
             "--generateAndSaveKeyTo=${builtins.toString cfg.dataDir}/config/key"
             "--remoteConfig=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/get-config"
             "--reportBandwidthTo=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/receive-bandwidth"
