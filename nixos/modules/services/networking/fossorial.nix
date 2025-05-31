@@ -42,7 +42,7 @@ let
     };
     gerbil = {
      start_port = 51820;
-     base_endpoint = cfg.baseDomain;
+     base_endpoint = cfg.dashboardDomain;
      block_size = 24;
      site_block_size = 30;
      subnet_group = "100.89.128.1/24";
