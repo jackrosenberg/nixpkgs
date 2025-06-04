@@ -15,18 +15,16 @@ let
       log_level = "info";
       save_logs = false;
     };
-    domains = {
-      domain1 = {
-        base_domain = cfg.baseDomain;
-        cert_resolver = "letsencrypt";
-        prefer_wildcard_cert = false;
-      };
+    domains.domain1 = {
+      base_domain = cfg.baseDomain;
+      cert_resolver = "letsencrypt";
+      prefer_wildcard_cert = false;
     };
     server = {
       external_port = cfg.externalPort;
       internal_port = cfg.internalPort;
       next_port = cfg.nextPort;
-      internal_hostname = "pangolin";
+      internal_hostname = "localhost";
       session_cookie_name = "p_session_token";
       resource_access_token_param = "p_token";
       resource_access_token_headers = {
@@ -34,6 +32,12 @@ let
         token = "P-Access-Token";
       };
       resource_session_request_param = "p_session_request";
+      cors = {
+        origins = ["https://${cfg.dashboardDomain}"];
+        methods = ["GET" "POST" "PUT" "DELETE" "PATCH"];
+        headers = ["X-CSRF-Token" "Content-Type"];
+        credentials = false;
+      };
     };
     traefik = {
       cert_resolver = "letsencrypt";
@@ -48,17 +52,13 @@ let
      subnet_group = "100.89.128.1/24";
      use_subdomain = true;
     };
-    rate_limits = {
-      global = {
-         window_minutes = 1;
-         max_requests = 500;
-      };
+    rate_limits.global = {
+      window_minutes = 1;
+      max_requests = 500;
     };
-    users = {
-      server_admin = {
-        email = cfg.letsEncryptEmail;
-        password = "Password123!";
-      };
+    users.server_admin = {
+      email = cfg.letsEncryptEmail;
+      password = "Password123!";
     };
     flags = {
       require_email_verification = false;
@@ -66,7 +66,7 @@ let
       disable_user_create_org = true;
       allow_raw_resources = true;
       allow_base_domain_resources = true;
-      };
+    };
   };
 in
 {
