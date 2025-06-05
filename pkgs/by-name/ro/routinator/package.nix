@@ -2,8 +2,6 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
-  stdenv,
-  darwin,
   nixosTests,
 }:
 
@@ -13,21 +11,13 @@ rustPlatform.buildRustPackage rec {
 
   src = fetchFromGitHub {
     owner = "NLnetLabs";
-    repo = pname;
+    repo = "routinator";
     rev = "v${version}";
     hash = "sha256-itD9d+EqEdJ2bTJEpHxJCFFS8Mpc7AFQ1JgkNQxncV0=";
   };
 
   useFetchCargoVendor = true;
   cargoHash = "sha256-58EnGouq8iKkgsvyHqARoQ0u4QXjw0m6pv4Am4J9wlU=";
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin (
-    with darwin.apple_sdk.frameworks;
-    [
-      Security
-      SystemConfiguration
-    ]
-  );
 
   meta = with lib; {
     description = "RPKI Validator written in Rust";

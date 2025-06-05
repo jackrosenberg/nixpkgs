@@ -10,7 +10,7 @@ buildGoModule rec {
 
   src = fetchFromGitHub {
     owner = "slurdge";
-    repo = pname;
+    repo = "goeland";
     rev = "v${version}";
     sha256 = "sha256-4xhw6L6CuwW2MepwGvpVLVafMcU/g0bn/2M/8ZSRF/U=";
   };
@@ -23,7 +23,7 @@ buildGoModule rec {
     "-X github.com/slurdge/goeland/version.GitCommit=${version}"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Alternative to rss2email written in golang with many filters";
     mainProgram = "goeland";
     longDescription = ''
@@ -34,7 +34,7 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/slurdge/goeland";
     changelog = "https://github.com/slurdge/goeland/blob/v${version}/CHANGELOG.md";
-    license = with licenses; [ mit ];
-    maintainers = [ maintainers.sweenu ];
+    license = with lib.licenses; [ mit ];
+    maintainers = [ lib.maintainers.sweenu ];
   };
 }

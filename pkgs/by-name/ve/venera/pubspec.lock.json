@@ -221,6 +221,16 @@
       "source": "hosted",
       "version": "1.7.0"
     },
+    "enough_convert": {
+      "dependency": "direct main",
+      "description": {
+        "name": "enough_convert",
+        "sha256": "c67d85ca21aaa0648f155907362430701db41f7ec8e6501a58ad9cd9d8569d01",
+        "url": "https://pub.dev"
+      },
+      "source": "hosted",
+      "version": "1.6.0"
+    },
     "fake_async": {
       "dependency": "transitive",
       "description": {
@@ -382,9 +392,9 @@
       "dependency": "direct main",
       "description": {
         "path": "flutter_inappwebview",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "6.2.0-beta.3"
@@ -393,9 +403,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_android",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "1.2.0-beta.3"
@@ -414,9 +424,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_ios",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "1.2.0-beta.3"
@@ -425,9 +435,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_macos",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "1.2.0-beta.3"
@@ -436,9 +446,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_platform_interface",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "1.4.0-beta.3"
@@ -447,9 +457,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_web",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "1.2.0-beta.3"
@@ -458,9 +468,9 @@
       "dependency": "transitive",
       "description": {
         "path": "flutter_inappwebview_windows",
-        "ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "resolved-ref": "0aaf7a0bfc01d61a4d1453cefb57fb6783b6e676",
-        "url": "https://github.com/pichillilorenzo/flutter_inappwebview"
+        "ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "resolved-ref": "3ef899b3db57c911b080979f1392253b835f98ab",
+        "url": "https://github.com/venera-app/flutter_inappwebview"
       },
       "source": "git",
       "version": "0.7.0-beta.3"
@@ -526,11 +536,11 @@
       "dependency": "transitive",
       "description": {
         "name": "flutter_rust_bridge",
-        "sha256": "5a5c7a5deeef2cc2ffe6076a33b0429f4a20ceac22a397297aed2b1eb067e611",
+        "sha256": "b416ff56002789e636244fb4cc449f587656eff995e5a7169457eb0593fcaddb",
         "url": "https://pub.dev"
       },
       "source": "hosted",
-      "version": "2.9.0"
+      "version": "2.10.0"
     },
     "flutter_saf": {
       "dependency": "direct main",
@@ -941,12 +951,12 @@
       "dependency": "direct main",
       "description": {
         "path": "rhttp",
-        "ref": "e7dca15ca543b5df49f3ada06016e874b79bce36",
-        "resolved-ref": "e7dca15ca543b5df49f3ada06016e874b79bce36",
+        "ref": "1f0ff50336062c5f809c256726dc55cd30b9ce59",
+        "resolved-ref": "1f0ff50336062c5f809c256726dc55cd30b9ce59",
         "url": "https://github.com/wgh136/rhttp"
       },
       "source": "git",
-      "version": "0.11.0"
+      "version": "0.12.0"
     },
     "screen_retriever": {
       "dependency": "transitive",
@@ -1368,7 +1378,7 @@
     }
   },
   "sdks": {
-    "dart": ">=3.7.0 <4.0.0",
-    "flutter": ">=3.29.2"
+    "dart": ">=3.8.0 <4.0.0",
+    "flutter": ">=3.32.0"
   }
 }
