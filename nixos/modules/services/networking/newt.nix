@@ -60,7 +60,7 @@ in
         in
         utils.escapeSystemdExecArgs (
           [
-            (lib.getExe' pkgs.fosrl-newt "newt")
+            (lib.getExe pkgs.newt-go)
             "--id" newtConfig.id
             "--secret" newtConfig.secret
             "--endpoint" newtConfig.endpoint
