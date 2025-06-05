@@ -26,16 +26,27 @@
   withPulseaudio ? config.pulseaudio or stdenv.hostPlatform.isLinux,
 }:
 
+let
+  uppercaseFirst =
+    x: (lib.toUpper (lib.substring 0 1 x)) + (lib.substring 1 ((lib.strings.stringLength x) - 1) x);
+in
+
 stdenv.mkDerivation (finalAttrs: {
   pname = "kew";
-  version = "3.2.0";
+  version = "3.3.2";
 
   src = fetchFromGitHub {
     owner = "ravachol";
     repo = "kew";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-nntbxDy1gfd4F/FvlilLeOAepqtxhnYE2XRjJSlFvgI=";
+    hash = "sha256-DcQs9saw4DeEiPUo/pGaP5MMNfIuzOZPQW1FgQKQ20w=";
   };
+
+  postPatch = ''
+    substituteInPlace Makefile \
+      --replace-fail '$(shell uname -s)' '${uppercaseFirst stdenv.hostPlatform.parsed.kernel.name}' \
+      --replace-fail '$(shell uname -m)' '${stdenv.hostPlatform.parsed.cpu.name}'
+  '';
 
   nativeBuildInputs =
     [

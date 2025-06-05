@@ -17,20 +17,19 @@ let
 in
 python3.pkgs.buildPythonApplication rec {
   pname = "matrix-synapse";
-  version = "1.128.0";
+  version = "1.130.0";
   format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "element-hq";
     repo = "synapse";
     rev = "v${version}";
-    hash = "sha256-QgVx/9mZ3Do+42YwO8OtI2dcuckMX/xIaiBUi4HrK4Q=";
+    hash = "sha256-/rPVJvIJfPMV+8hMenNF2dJzgemhaD2Z+/G4+6d7r1k=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
-    inherit src;
-    name = "${pname}-${version}";
-    hash = "sha256-PdAyEGLYmMLgcPQjzjuwvQo55olKgr079gsgQnUoKTM=";
+    inherit pname version src;
+    hash = "sha256-Gq3QvQSRfxRovzuvdboLCheNuMW58GFO9x2N2os+p38=";
   };
 
   postPatch = ''
@@ -181,12 +180,12 @@ python3.pkgs.buildPythonApplication rec {
     updateScript = nix-update-script { };
   };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://matrix.org";
     changelog = "https://github.com/element-hq/synapse/releases/tag/v${version}";
     description = "Matrix reference homeserver";
-    license = licenses.agpl3Plus;
-    maintainers = with maintainers; [ sumnerevans ];
-    teams = [ teams.matrix ];
+    license = lib.licenses.agpl3Plus;
+    maintainers = with lib.maintainers; [ sumnerevans ];
+    teams = [ lib.teams.matrix ];
   };
 }

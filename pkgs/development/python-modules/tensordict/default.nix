@@ -11,6 +11,7 @@
 
   # nativeBuildInputs
   cmake,
+  ninja,
 
   # dependencies
   cloudpickle,
@@ -27,23 +28,15 @@
 
 buildPythonPackage rec {
   pname = "tensordict";
-  version = "0.8.1";
+  version = "0.8.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pytorch";
     repo = "tensordict";
     tag = "v${version}";
-    hash = "sha256-ZYuu1vKhC5Yi9m3EsPUhA9OXHjmHafUJRCDnQIu5kFk=";
+    hash = "sha256-d/6JKGFcFLXY9pxsnP27uwnAnIQ9EKvfTS30DCwQrCM=";
   };
-
-  # TODO: remove at next release
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace-fail \
-        'version = "0.8.0"' \
-        'version = "0.8.1"'
-  '';
 
   build-system = [
     pybind11
@@ -53,6 +46,7 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     cmake
+    ninja
   ];
   dontUseCmakeConfigure = true;
 
@@ -77,14 +71,23 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  disabledTests = [
-    # FileNotFoundError: [Errno 2] No such file or directory: '/build/source/tensordict/tensorclass.pyi
-    "test_tensorclass_instance_methods"
-    "test_tensorclass_stub_methods"
+  disabledTests =
+    [
+      # FileNotFoundError: [Errno 2] No such file or directory: '/build/source/tensordict/tensorclass.pyi
+      "test_tensorclass_instance_methods"
+      "test_tensorclass_stub_methods"
 
-    # hangs forever on some CPUs
-    "test_map_iter_interrupt_early"
-  ];
+      # hangs forever on some CPUs
+      "test_map_iter_interrupt_early"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # Hangs due to the use of a pool
+      "test_chunksize_num_chunks"
+      "test_index_with_generator"
+      "test_map_exception"
+      "test_map"
+      "test_multiprocessing"
+    ];
 
   disabledTestPaths =
     [
@@ -94,6 +97,9 @@ buildPythonPackage rec {
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # Hangs forever
       "test/test_distributed.py"
+      # Hangs after testing due to pool usage
+      "test/test_h5.py"
+      "test/test_memmap.py"
     ];
 
   meta = {
