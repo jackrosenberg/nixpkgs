@@ -151,103 +151,104 @@ in
        allowedUDPPorts = [ 51820 ];
      };
 
-    users.users.fossorial = {
-      description = "Fossorial service user";
-      group = "fossorial";
-      isSystemUser = true;
-      home = cfg.dataDir;
-      createHome = true;
+    users = {
+      users.fossorial = {
+        description = "Fossorial service user";
+        group = "fossorial";
+        isSystemUser = true;
+        home = cfg.dataDir;
+      };
+      groups.fossorial = {
+        members = [ "fossorial" "traefik"];
+      };
     };
-    users.groups.fossorial = {
-      members = [ "fossorial" "traefik"];
-    };
-    # order is as follows
-    # "systemd-tmpfiles-resetup.service"
-    # "fossorial.service"
-    # "gerbil.service"
-    # "traefik.service"
-    systemd.services = {
-      fossorial = {
-        description = "Fossorial Service";
-        wantedBy = [ "multi-user.target" ];
-        requires = [ "network.target" "systemd-tmpfiles-resetup.service"];
-        after = [ "network.target" "systemd-tmpfiles-resetup.service"];
-        environment = {
-          NODE_OPTIONS = "enable-source-maps";
-          NODE_ENV = "development";
-          ENVIRONMENT = "prod";
+    systemd = {
+      # tmpfiles.rules = [
+      #   "d '${cfg.dataDir}' 0755 fossorial fossorial"
+      #   "d '${cfg.dataDir}/config' 0755 fossorial fossorial"
+      #   "d '${cfg.dataDir}/config/letsencrypt' 0755 traefik traefik"
+      #   "d '${cfg.dataDir}/config/traefik' 0755 traefik traefik"
+      # ];
+      services = {
+        fossorial = {
+          description = "Fossorial Service";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" ];
+
+          environment = {
+            NODE_OPTIONS = "enable-source-maps";
+            NODE_ENV = "development";
+            ENVIRONMENT = "prod";
+          };
+
+          preStart = ''
+            mkdir -p ${cfg.dataDir}/config
+            touch ${cfg.dataDir}/config/config.yml
+            cp ${cfgFile} ${cfg.dataDir}/config/config.yml
+          '';
+          serviceConfig = {
+            User = "fossorial";
+            Group = "fossorial";
+            DynamicUser = true;
+            WorkingDirectory = cfg.dataDir;
+            StateDirectory = "fossorial";
+            ReadWritePaths = cfg.dataDir;
+            Restart = "always";
+
+            BindPaths = [
+              "${pkgs.fosrl-pangolin}/.next:${cfg.dataDir}/.next"
+              "${pkgs.fosrl-pangolin}/public:${cfg.dataDir}/public"
+              "${pkgs.fosrl-pangolin}/dist:${cfg.dataDir}/dist"
+              "${pkgs.fosrl-pangolin}/node_modules:${cfg.dataDir}/node_modules"
+            ];
+
+            ExecStartPre = utils.escapeSystemdExecArgs [
+              (lib.getExe pkgs.nodejs_22)
+              "${pkgs.fosrl-pangolin}/dist/migrations.mjs"
+            ];
+            ExecStart = utils.escapeSystemdExecArgs [
+              (lib.getExe pkgs.nodejs_22)
+              "${pkgs.fosrl-pangolin}/dist/server.mjs"
+            ];
+          };
         };
-        preStart = ''
-          mkdir -p ${cfg.dataDir}/config
-          touch ${cfg.dataDir}/config/config.yml
-          cp ${cfgFile} ${cfg.dataDir}/config/config.yml
-        '';
-        serviceConfig = {
-          User = "fossorial";
-          Group = "fossorial";
-          WorkingDirectory = cfg.dataDir;
-          Restart = "always";
-          GuessMainPID = true;
-          # allow fossorial group members to write to folder
-          UMask = "022";
+        gerbil = {
+          description = "Gerbil Service";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "fossorial.service" ];
+          requires = [ "fossorial.service" ];
+          before = [ "traefik.service" ];
+          requiredBy  = [ "traefik.service" ];
 
-          BindPaths = [
-            "${pkgs.fosrl-pangolin}/.next:${cfg.dataDir}/.next"
-            "${pkgs.fosrl-pangolin}/public:${cfg.dataDir}/public"
-            "${pkgs.fosrl-pangolin}/dist:${cfg.dataDir}/dist"
-            "${pkgs.fosrl-pangolin}/node_modules:${cfg.dataDir}/node_modules"
-          ];
+          # TODO: add the rest of the envvars
+          environment = {
+            LISTEN = "localhost:" + builtins.toString cfg.gerbilPort;
+          };
 
-          ExecStartPre = utils.escapeSystemdExecArgs [
-            (lib.getExe pkgs.nodejs_22)
-            "${pkgs.fosrl-pangolin}/dist/migrations.mjs"
-          ];
-          ExecStart = utils.escapeSystemdExecArgs [
-            (lib.getExe pkgs.nodejs_22)
-            "${pkgs.fosrl-pangolin}/dist/server.mjs"
-          ];
+          serviceConfig = {
+            DynamicUser = true;
+            User = "gerbil";
+            Group = "fossorial";
+            # todo, delete this if possible?
+            # WorkingDirectory = cfg.dataDir;
+            Restart = "always";
+            AmbientCapabilities = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
+            CapabilityBoundingSet = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
+
+            ExecStart = utils.escapeSystemdExecArgs [
+              ("${pkgs.fosrl-gerbil}/bin/gerbil")
+              "--reachableAt=http://localhost:${builtins.toString cfg.gerbilPort}"
+              "--generateAndSaveKeyTo=${builtins.toString cfg.dataDir}/config/key"
+              "--remoteConfig=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/get-config"
+              "--reportBandwidthTo=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/receive-bandwidth"
+            ];
+          };
         };
       };
-      gerbil = {
-        description = "Gerbil Service";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "fossorial.service" ];
-        requires = [ "fossorial.service" ];
-        before = [ "traefik.service" ];
-        requiredBy  = [ "traefik.service" ];
-
-        # TODO: add the rest of the envvars
-        environment = {
-          LISTEN = "localhost:" + builtins.toString cfg.gerbilPort;
-        };
-
-        serviceConfig = {
-          User = "fossorial";
-          Group = "fossorial";
-          WorkingDirectory = cfg.dataDir;
-          Restart = "always";
-          AmbientCapabilities = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE"];
-          CapabilityBoundingSet = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE"];
-
-          ExecStart = utils.escapeSystemdExecArgs [
-            ("${pkgs.fosrl-gerbil}/bin/gerbil")
-            "--reachableAt=http://localhost:${builtins.toString cfg.gerbilPort}"
-            "--generateAndSaveKeyTo=${builtins.toString cfg.dataDir}/config/key"
-            "--remoteConfig=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/get-config"
-            "--reportBandwidthTo=http://localhost:${builtins.toString cfg.internalPort}/api/v1/gerbil/receive-bandwidth"
-          ];
-        };
-      };
-      # make sure traefik places plugins in local dir instead of /
-      traefik.serviceConfig.WorkingDirectory = "${cfg.dataDir}/config/traefik";
     };
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0755 fossorial fossorial - - "
-      "d '${cfg.dataDir}/config' 0755 fossorial fossorial - -"
-      "d '${cfg.dataDir}/config/letsencrypt' 0755 traefik traefik - - "
-    ];
-
+    # make sure traefik places plugins in local dir instead of /
+    systemd.services.traefik.serviceConfig.WorkingDirectory = "${cfg.dataDir}/config/traefik";
     services.traefik = {
       enable = true;
       group = "fossorial";
