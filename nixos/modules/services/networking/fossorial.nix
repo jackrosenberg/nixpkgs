@@ -195,11 +195,13 @@ in
             ReadWritePaths = cfg.dataDir;
             Restart = "always";
 
+            # bind paths so they are readable from privatedir
+            # TODO fix to use datadir
             BindPaths = [
-              "${pkgs.fosrl-pangolin}/.next:${cfg.dataDir}/.next"
-              "${pkgs.fosrl-pangolin}/public:${cfg.dataDir}/public"
-              "${pkgs.fosrl-pangolin}/dist:${cfg.dataDir}/dist"
-              "${pkgs.fosrl-pangolin}/node_modules:${cfg.dataDir}/node_modules"
+              "${pkgs.fosrl-pangolin}/.next:%S/private/fossorial/.next"
+              "${pkgs.fosrl-pangolin}/public:%S/private/fossorial/public"
+              "${pkgs.fosrl-pangolin}/dist:%S/private/fossorial/dist"
+              "${pkgs.fosrl-pangolin}/node_modules:%S/private/fossorial/node_modules"
             ];
 
             ExecStartPre = utils.escapeSystemdExecArgs [
@@ -226,11 +228,11 @@ in
           };
 
           serviceConfig = {
-            DynamicUser = true;
             User = "gerbil";
             Group = "fossorial";
-            # todo, delete this if possible?
-            # WorkingDirectory = cfg.dataDir;
+            DynamicUser = true;
+            StateDirectory = "fossorial";
+            ReadWritePaths = "${cfg.dataDir}/config";
             Restart = "always";
             AmbientCapabilities = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
             CapabilityBoundingSet = [ "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
@@ -248,11 +250,16 @@ in
     };
 
     # make sure traefik places plugins in local dir instead of /
-    systemd.services.traefik.serviceConfig.WorkingDirectory = "${cfg.dataDir}/config/traefik";
+    systemd.services.traefik.serviceConfig = {
+      User = "traefik";
+      Group = "fossorial";
+      # DynamicUser = true;
+      WorkingDirectory = "%S/private/fossorial/config/traefik";
+    };
     services.traefik = {
       enable = true;
       group = "fossorial";
-      dataDir = "${cfg.dataDir}/config/traefik";
+      dataDir = "/var/lib/private/fossorial/config/traefik";
       staticConfigOptions = {
         api = {
           insecure = true;
