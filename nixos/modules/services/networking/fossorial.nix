@@ -174,6 +174,7 @@ in
           description = "Fossorial Service";
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" ];
+          before = [ "gerbil.service" ];
 
           environment = {
             NODE_OPTIONS = "enable-source-maps";
@@ -198,10 +199,10 @@ in
             # bind paths so they are readable from privatedir
             # TODO fix to use datadir
             BindPaths = [
-              "${pkgs.fosrl-pangolin}/.next:%S/private/fossorial/.next"
-              "${pkgs.fosrl-pangolin}/public:%S/private/fossorial/public"
-              "${pkgs.fosrl-pangolin}/dist:%S/private/fossorial/dist"
-              "${pkgs.fosrl-pangolin}/node_modules:%S/private/fossorial/node_modules"
+              "${pkgs.fosrl-pangolin}/.next:/var/lib/private/fossorial/.next"
+              "${pkgs.fosrl-pangolin}/public:/var/lib/private/fossorial/public"
+              "${pkgs.fosrl-pangolin}/dist:/var/lib/private/fossorial/dist"
+              "${pkgs.fosrl-pangolin}/node_modules:/var/lib/private/fossorial/node_modules"
             ];
 
             ExecStartPre = utils.escapeSystemdExecArgs [
@@ -218,9 +219,7 @@ in
           description = "Gerbil Service";
           wantedBy = [ "multi-user.target" ];
           after = [ "fossorial.service" ];
-          requires = [ "fossorial.service" ];
           before = [ "traefik.service" ];
-          requiredBy  = [ "traefik.service" ];
 
           # TODO: add the rest of the envvars
           environment = {
@@ -253,7 +252,7 @@ in
     systemd.services.traefik.serviceConfig = {
       User = "traefik";
       Group = "fossorial";
-      # DynamicUser = true;
+      DynamicUser = true;
       WorkingDirectory = "%S/private/fossorial/config/traefik";
     };
     services.traefik = {

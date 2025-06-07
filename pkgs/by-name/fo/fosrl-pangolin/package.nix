@@ -40,7 +40,6 @@ buildNpmPackage rec {
 
     cp server/db/names.json $out/dist/names.json
     cp -r public $out/public
-    ls -la node_modules/@node-rs
     cp -r node_modules $out/
   '';
 }
