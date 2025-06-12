@@ -7,6 +7,7 @@
   inter,
   databaseType ? "sqlite",
   environmentVariables ? { },
+  nixosTests,
 }:
 
 assert lib.assertOneOf "databaseType" databaseType [
@@ -145,7 +146,12 @@ buildNpmPackage (finalAttrs: {
         }
       ];
 
-  passthru = { inherit databaseType; };
+  passthru = {
+    inherit databaseType;
+    tests = {
+      pangolin = nixosTests.pangolin;
+    };
+  };
 
   meta = {
     description = "Tunneled reverse proxy server with identity and access control";
