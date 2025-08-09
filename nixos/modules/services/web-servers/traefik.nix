@@ -95,6 +95,15 @@ in
       '';
     };
 
+    workDir = mkOption {
+      default = cfg.dataDir;
+      defaultText = "config.services.traefik.dataDir";
+      type = types.path;
+      description = ''
+        Location in which traefik operates.
+      '';
+    };
+
     group = mkOption {
       default = "traefik";
       type = types.str;
@@ -152,6 +161,7 @@ in
         ProtectSystem = "full";
         ReadWritePaths = [ cfg.dataDir ];
         RuntimeDirectory = "traefik";
+        WorkingDirectory = cfg.workDir;
       };
     };
 
