@@ -95,6 +95,14 @@ in
       '';
     };
 
+    workDir = mkOption {
+      default = cfg.dataDir;
+      type = types.path;
+      description = ''
+        Location in which traefik operates.
+      '';
+    };
+
     group = mkOption {
       default = "traefik";
       type = types.str;
