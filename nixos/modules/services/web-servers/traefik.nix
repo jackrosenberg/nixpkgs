@@ -107,6 +107,15 @@ in
 
     package = mkPackageOption pkgs "traefik" { };
 
+    localPlugins = {
+      default = [ ];
+      type = with types; listOf pathInStore;
+      example = "[ pkgs.fosrl-badger ]";
+      description = ''
+        List of Nix packaged Traefik plugins to load into the `plugins-local` folder.
+      '';
+    };
+
     environmentFiles = mkOption {
       default = [ ];
       type = types.listOf types.path;
@@ -130,12 +139,17 @@ in
       startLimitBurst = 5;
       serviceConfig = {
         EnvironmentFile = cfg.environmentFiles;
-        ExecStartPre = lib.optional (cfg.environmentFiles != [ ]) (
-          pkgs.writeShellScript "pre-start" ''
-            umask 077
-            ${pkgs.envsubst}/bin/envsubst -i "${staticConfigFile}" > "${finalStaticConfigFile}"
-          ''
-        );
+        ExecStartPre =
+          (lib.optional (cfg.environmentFiles != [ ]) (
+            pkgs.writeShellScript "pre-start" ''
+              umask 077
+              ${pkgs.envsubst}/bin/envsubst -i "${staticConfigFile}" > "${finalStaticConfigFile}"
+            ''
+          ))
+          ++ map (p: ''
+            mkdir -p plugins-local/src/github.com/${p}
+            ln ${p} plugins-local/src/github.com/${p}
+          '') cfg.localPlugins;
         ExecStart = "${cfg.package}/bin/traefik --configfile=${finalStaticConfigFile}";
         Type = "simple";
         User = "traefik";
