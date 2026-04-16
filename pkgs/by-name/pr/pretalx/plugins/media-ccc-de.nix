@@ -5,7 +5,7 @@
   setuptools,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage (finalAttrs: {
   pname = "pretalx-media-ccc-de";
   version = "1.6.0";
   pyproject = true;
@@ -13,7 +13,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pretalx";
     repo = "pretalx-media-ccc-de";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-QyX/hmDom2QHiaTH0EFg2jxzochQaFQ4AOQ2vM6yofU=";
   };
 
@@ -27,4 +27,4 @@ buildPythonPackage rec {
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ wegank ];
   };
-}
+})

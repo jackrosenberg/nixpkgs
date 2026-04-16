@@ -8,7 +8,7 @@
   pyjwt,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage (finalAttrs: {
   pname = "pretalx-venueless";
   version = "1.7.0";
   pyproject = true;
@@ -16,7 +16,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pretalx";
     repo = "pretalx-venueless";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-oV7J5ndhrhrI5UXTDexLMRo7Gud4SyppCKhoUtom54E=";
   };
 
@@ -37,4 +37,4 @@ buildPythonPackage rec {
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ wegank ];
   };
-}
+})
