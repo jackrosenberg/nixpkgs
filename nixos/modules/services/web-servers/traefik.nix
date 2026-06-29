@@ -171,6 +171,7 @@ in
                 };
               };
             };
+            # TODO make sure this properly replaces `mkIf` statement as intended
             experimental.localPlugins = mkOption {
               default =
                 if (cfg.localPlugins != [ ]) then
@@ -477,6 +478,7 @@ in
     warnings =
       optional (!(builtins.elem "docker" cfg.supplementaryGroups -> config.virtualisation.docker.enable))
         "'services.traefik.supplementaryGroups' contains the 'docker' group, but 'services.docker' is not enabled."
+        # TODO check for functionality as intended
       ++ optional (!builtins.all id (map (plugin: plugin._isTraefikPlugin or false) cfg.localPlugins)) ''
         Some of the Traefik local plugins in 'services.traefik.localPlugins' may be misconfigured.
         The following paths are built from derivations that do not have the '_isTraefikPlugin' attribute set to 'true':
@@ -567,6 +569,7 @@ in
         ) cfg.routing.extraFiles)
       ))
       # TODO needs user/group checks
+      # TODO does this need to point to the install setting instead?
       (mkIf (cfg.localPlugins != [ ]) {
         "${cfg.dataDir}/plugins-local"."L+" = {
           inherit (cfg) user group;
