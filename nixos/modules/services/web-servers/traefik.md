@@ -26,8 +26,8 @@ option set.
 ### routing Configuration {#module-services-traefik-usage-routing}
 
 The routing configuration has a similar option set to the install configuration,
-but it also has the {option}`services.traefik.routing.dir` option, which allows
-you to define a directory containing several Traefik routing configuration files.
+with the addition of {option}`services.traefik.routing.dir` and `services.traefik.routing.extraFiles`.
+#TODO benefits
 
 ## Plugins {#module-services-traefik-plugins}
 
@@ -44,7 +44,7 @@ the client's IP address, to block all connections not coming from the Netherland
 ```nix
 {
   services.traefik = {
-    plugins = with pkgs; [ geoblock ];
+    plugins = [ pkgs.geoblock ];
     install.settings.entryPoints.websecure.http.middlewares = "my-geoblock";
     routing.settings.http.middlewares.my-geoblock.plugin.geoblock.countries = [ "NL" ];
   };
@@ -99,10 +99,14 @@ derivation to include the `_isTraefikPlugin` attribute.
 ## Environment Files {#module-services-traefik-environment}
 
 Although the Traefik module offers the {option}`services.traefik.environmentFiles`
-option to set up environment files for the running server, *it is not recommended
-to use them as install configuration sources*. The environment files are intended
-to provision secrets for ACME/Let's Encrypt and other certificate setups.
+option to set up environment variables for the running server, *it is not recommended
+to use them as the install configuration source.* The configuration methods are mutually exclusive, and evaluated in the following order:
 
+- In a configuration file
+- In the command-line arguments
+- As environment variables
+
+The environment files are intended to provision secrets for ACME/Let's Encrypt and other certificate setups.
 See the [upstream documentation][upstream-4] for more information on passing
 ACME secrets for setting up DNS-01 challenges.
 
@@ -116,4 +120,8 @@ ACME secrets for setting up DNS-01 challenges.
 
 ## Migrating to 26.11 {#module-services-traefik-migrating-to-26.11}
 
-The Traefik module now features new ways to deploy the routing and install configuration files. Move your existing declarative install and routing configurations to `services.traefik.install.settings` and `services.traefik.routing.files."my-application".settings` respectively. The `services.traefik.routing.settings` option is available for a simpler migration without needing to define a filename like `my-application`, but this option will be removed in NixOS 27.05. The option to use `EnvSubst` to substitute environment variables has been removed, as using environment variables to store secrets is already supported by the {option}`services.traefik.environmentFiles`.
+The Traefik module now features new ways to deploy the routing and install configuration, which were previously called dynamic and static configuration. For a simple migration, move your existing declarative install and routing configurations to `services.traefik.install.settings` and `services.traefik.routing.settings` respectively.
+The option to use `EnvSubst` to substitute environment variables has been removed, as using environment variables to store secrets is already supported by the {option}`services.traefik.environmentFiles`. Please open an issue and mention the maintainers if this causes issues.
+
+A new option, `services.traefik.routing.extraFiles.<name>`, is now available. In conjunction with `services.traefik.routing.dir`, this allows
+you to group settings into files that are linked to traefiks `providers.file.directory`. This allows you to mix declarative and imperative configuration, and means that changes in the routing configuration can occur without restarting the primary daemon. Please see [LINK]() for a thorough description of the changes.
