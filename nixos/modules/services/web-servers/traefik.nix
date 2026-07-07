@@ -533,9 +533,10 @@ in
 
     # TODO review mkIf statements to ensure cfg.{user, group} logic functions as expected
     systemd.tmpfiles.settings."10-traefik" = mkMerge [
-      (mkIf (cfg.user == "traefik") {
+      (mkIf (cfg.user == "traefik" || cfg.group == "traefik") {
         ${cfg.dataDir}.d = {
-          inherit (cfg) user group;
+          user = mkIf (cfg.user == "traefik") cfg.user;
+          group = mkIf (cfg.group == "traefik") cfg.group;
           mode = "0770";
         };
       })
@@ -546,6 +547,8 @@ in
         ${cfg.routing.dir}.d = {
           user = mkIf (cfg.user == "traefik") cfg.user;
           group = mkIf (cfg.group == "traefik") cfg.group;
+          # Traefik doesn't need write perms on this, only read/execute. Global read isn't a security risk
+          # because the files that are linked within are already in /nix/store
           mode = "0555";
         };
       })
