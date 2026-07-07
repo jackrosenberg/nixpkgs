@@ -26,6 +26,7 @@ let
     id
     literalExpression
     mapAttrs'
+    mkDefault
     mkEnableOption
     mkIf
     mkMerge
@@ -488,11 +489,10 @@ in
         }
       '';
 
-    # TODO ensure this is applicable/helpful
     # https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes
     boot.kernel.sysctl = {
-      "net.core.rmem_max" = 2500000;
-      "net.core.wmem_max" = 2500000;
+      "net.core.rmem_max" = mkDefault 7500000;
+      "net.core.wmem_max" = mkDefault 7500000;
     };
 
     systemd.services.traefik = {
