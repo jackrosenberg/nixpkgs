@@ -333,8 +333,7 @@ in
     };
 
     dataDir = mkOption {
-      # TODO Was this /var/lib before?
-      default = "/etc/traefik";
+      default = "/var/lib/traefik";
       type = path;
       description = ''
         Location for any persistent data Traefik creates, such as the ACME certificate store.
