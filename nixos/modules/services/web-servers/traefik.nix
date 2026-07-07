@@ -537,20 +537,17 @@ in
       (mkIf (cfg.user == "traefik") {
         ${cfg.dataDir}.d = {
           inherit (cfg) user group;
-          mode = "0700";
+          mode = "0770";
         };
       })
       (mkIf (cfg.routing.finalSettings != null) {
-        "/etc/traefik/routing.yml"."L+" = {
-          mode = "0444";
-          argument = toString cfg.routing.finalSettings;
-        };
+        "/etc/traefik/routing.yml"."L+".argument = toString cfg.routing.finalSettings;
       })
-      (mkIf (cfg.user == "traefik" || cfg.group == "traefik") {
+      (mkIf (cfg.routing.dir != null && cfg.user == "traefik" || cfg.group == "traefik") {
         ${cfg.routing.dir}.d = {
           user = mkIf (cfg.user == "traefik") cfg.user;
           group = mkIf (cfg.group == "traefik") cfg.group;
-          mode = "0700";
+          mode = "0555";
         };
       })
       (mkIf (cfg.routing.dir != null) (
@@ -561,19 +558,14 @@ in
         // (mapAttrs' (
           name: value:
           nameValuePair "${cfg.routing.dir}/_nixos-${name}.yml" {
-            "L+" = {
-              mode = "0444";
-              argument = toString (json.generate name value.settings);
-            };
+            "L+".argument = toString (json.generate name value.settings);
           }
         ) cfg.routing.extraFiles)
       ))
-      # TODO needs user/group checks
       # TODO does this need to point to the install setting instead?
+      # Answer: probably not. The `cfg.localPlugins` option creates a directory containing symlinks, and `install.settings.localPlugins` tells traefik to load them.
       (mkIf (cfg.localPlugins != [ ]) {
         "${cfg.dataDir}/plugins-local"."L+" = {
-          inherit (cfg) user group;
-          mode = "0700";
           argument = toString (
             pkgs.symlinkJoin {
               name = "traefik-plugins";
